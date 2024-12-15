@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/admin}">
+
+<head>
+    <title th:text="${role.id} ? '编辑角色' : '新建角色'"></title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0" th:text="${role.id} ? '编辑角色' : '新建角色'"></h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-body">
+                        <form th:action="${role.id} ? @{/admin/roles/edit/{id}(id=${role.id})} : @{/admin/roles/create}"
+                            method="post" th:object="${role}">
+                            <div class="form-group">
+                                <label for="roleName">角色名称</label>
+                                <input type="text" class="form-control" id="roleName" th:field="*{roleName}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">描述</label>
+                                <textarea class="form-control" id="description" th:field="*{description}"
+                                    rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>权限</label>
+                                <div class="row">
+                                    <div class="col-md-4" th:each="permission : ${permissions}">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input"
+                                                th:id="${'permission_' + permission.id}"
+                                                th:checked="${role.permissions != null && role.permissions.contains(permission)}"
+                                                th:onclick="'togglePermission(' + ${role.id} + ',' + ${permission.id} + ', this.checked)'">
+                                            <label class="custom-control-label"
+                                                th:for="${'permission_' + permission.id}"
+                                                th:text="${permission.description}"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">保存</button>
+                            <a th:href="@{/admin/roles}" class="btn btn-default">返回</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            function togglePermission(roleId, permissionId, assigned) {
+                if (!roleId) return; // 新建角色时不处理
+
+                fetch('/admin/roles/' + roleId + '/permissions/' + permissionId + '?assigned=' + assigned, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                    }
+                });
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

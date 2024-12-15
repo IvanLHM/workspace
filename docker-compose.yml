@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  dev:
+    build: .
+    container_name: my_dev_env
+    ports:
+      - "8080:8080" # Spring Boot
+      - "3000:3000" # Node.js
+    volumes:
+      - ./:/workspace
+      - maven_cache:/root/.m2
+      - node_modules:/workspace/node_modules
+    working_dir: /workspace
+    command: tail -f /dev/null
+    environment:
+      - JAVA_HOME=/opt/java/openjdk
+      - M2_HOME=/usr/share/maven
+    networks:
+      - dev_network
+
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_DB: dev_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev_network
+
+volumes:
+  maven_cache:
+  node_modules:
+  postgres_data:
+
+
+networks:
+  dev_network:
+    driver: bridge

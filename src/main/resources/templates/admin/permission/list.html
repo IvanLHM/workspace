@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/admin}">
+
+<head>
+    <title>权限管理</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">权限管理</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">权限列表</h3>
+                        <div class="card-tools">
+                            <a th:href="@{/admin/permissions/create}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> 新建权限
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${message}" class="alert alert-success alert-dismissible fade show">
+                            <span th:text="${message}"></span>
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        </div>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>权限名称</th>
+                                    <th>描述</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="permission : ${permissions}">
+                                    <td th:text="${permission.id}"></td>
+                                    <td th:text="${permission.permissionName}"></td>
+                                    <td th:text="${permission.description}"></td>
+                                    <td th:text="${#temporals.format(permission.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/admin/permissions/edit/{id}(id=${permission.id})}"
+                                            class="btn btn-info btn-sm">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                            th:onclick="'deletePermission(' + ${permission.id} + ')'">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            function deletePermission(id) {
+                if (confirm('确定要删除这个权限吗？')) {
+                    fetch('/admin/permissions/delete/' + id, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

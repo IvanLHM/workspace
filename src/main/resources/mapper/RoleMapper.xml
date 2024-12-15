@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.RoleMapper">
+    <resultMap id="roleMap" type="com.example.demo.entity.Role">
+        <id property="id" column="role_id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="description" column="role_description"/>
+        <result property="createdAt" column="role_created_at"/>
+        <collection property="permissions" ofType="com.example.demo.entity.Permission">
+            <id property="id" column="permission_id"/>
+            <result property="permissionName" column="permission_name"/>
+            <result property="description" column="permission_description"/>
+            <result property="createdAt" column="permission_created_at"/>
+        </collection>
+    </resultMap>
+
+    <select id="findAll" resultMap="roleMap">
+        SELECT 
+            r.id as role_id,
+            r.role_name,
+            r.description as role_description,
+            r.created_at as role_created_at,
+            p.id as permission_id,
+            p.permission_name,
+            p.description as permission_description,
+            p.created_at as permission_created_at
+        FROM roles r
+        LEFT JOIN role_permissions rp ON r.id = rp.role_id
+        LEFT JOIN permissions p ON rp.permission_id = p.id
+    </select>
+
+    <select id="findById" resultMap="roleMap">
+        SELECT 
+            r.id as role_id,
+            r.role_name,
+            r.description as role_description,
+            r.created_at as role_created_at,
+            p.id as permission_id,
+            p.permission_name,
+            p.description as permission_description,
+            p.created_at as permission_created_at
+        FROM roles r
+        LEFT JOIN role_permissions rp ON r.id = rp.role_id
+        LEFT JOIN permissions p ON rp.permission_id = p.id
+        WHERE r.id = #{id}
+    </select>
+
+    <select id="findByUserId" resultMap="roleMap">
+        SELECT 
+            r.id as role_id,
+            r.role_name,
+            r.description as role_description,
+            r.created_at as role_created_at,
+            p.id as permission_id,
+            p.permission_name,
+            p.description as permission_description,
+            p.created_at as permission_created_at
+        FROM roles r
+        JOIN user_roles ur ON r.id = ur.role_id
+        LEFT JOIN role_permissions rp ON r.id = rp.role_id
+        LEFT JOIN permissions p ON rp.permission_id = p.id
+        WHERE ur.user_id = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO roles (role_name, description)
+        VALUES (#{roleName}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE roles
+        SET role_name = #{roleName},
+            description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM roles WHERE id = #{id}
+    </delete>
+
+    <insert id="insertRolePermission">
+        INSERT INTO role_permissions (role_id, permission_id)
+        VALUES (#{roleId}, #{permissionId})
+    </insert>
+
+    <delete id="deleteRolePermission">
+        DELETE FROM role_permissions
+        WHERE role_id = #{roleId} AND permission_id = #{permissionId}
+    </delete>
+</mapper> 
