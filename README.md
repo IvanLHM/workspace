@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Spring Boot 权限管理系统
 
 这是一个基于 Spring Boot 和 AdminLTE 的权限管理系统。
@@ -47,6 +46,3 @@ docker-compose up -d
 ## 许可证
 
 MIT 
-=======
- 
->>>>>>> origin/main
